@@ -76,7 +76,7 @@ class DiceGame{
 				if (numPlayers < 2) {
 					cout << "Invalid value. There must be atleast 2 players." << endl;
 					flag = true;
-				}
+				} 
 
 				cout << "Enter the amount of dice for the game: ";
 				cin >> numDice;
@@ -92,6 +92,8 @@ class DiceGame{
 					flag == true;
 				}
 
+				cout << endl;
+
 				if (flag == true) {
 					continue;
 				}
@@ -101,6 +103,7 @@ class DiceGame{
 			cout << "Number of players: " << numPlayers << endl;
 			cout << "Number of dice: " << numDice << endl;
 			cout << "Number of sides per dice: " << numDiceSides << endl;
+			cout << endl;
 
 			for (int i = 0; i < numPlayers; i++) {
 				string name;
