@@ -1,10 +1,9 @@
 #include <iostream>
+#include <vector>
 #include <cstdlib> 
 #include <ctime> 
 #include <fstream>
 #include <stdlib.h>
-
-#define MAX_PLAYERS 10
 
 using namespace std;
 
@@ -13,21 +12,19 @@ class Dice {
 		int numSides;
 
 	public:
+		// Constructor for Dice
+		Dice(int numSides) : numSides(numSides) {}
+
 		// Getter : numSides
 		int getNumSides() {
 			return this->numSides;
 		}
 	
 		// Perform a single roll of the die
-		int roll(int numSides) {
+		int roll() {
        			int number = rand() % (numSides) + 1; 
         		return number;
 		}
-
-		void writeToNumSides(int val) {
-			this->numSides = val;
-		}
-
 };
 
 class Player{
@@ -57,9 +54,10 @@ class Player{
 */
 class DiceGame{
 	protected:
-		Player *players[MAX_PLAYERS];
+		// Rewrote the array to instead be a vector. This allows us to dynamically append players as needed.
+		vector<Player*> players;
 		Dice *dice;
-		int numPlayers, numDice;
+		int numPlayers, numDice, numDiceSides;
 		
 	public:
 		// Pure virtual function	
@@ -67,7 +65,44 @@ class DiceGame{
 
 		
 		void initPlayers() {
-			for (int i = 0; i < MAX_PLAYERS; i++) {
+			// Prompt for number of players. This is defined in the DiceGame because both
+			// games, Knock Out and Boston accept the number of players from the user.
+			while (1) {
+				bool flag = false;
+
+				cout << "Enter the amount of players: ";
+				cin >> numPlayers;
+
+				if (numPlayers < 2) {
+					cout << "Invalid value. There must be atleast 2 players." << endl;
+					flag = true;
+				}
+
+				cout << "Enter the amount of dice for the game: ";
+				cin >> numDice;
+				if (numDice < 1) {
+					cout << "Invalid value. There must be atleast 1 dice." << endl;
+					flag = true;
+				}
+
+				cout << "Enter the amount of sides per dice: ";
+				cin >> numDiceSides;
+				if (numDiceSides < 2) {
+					cout << "Invalid value. There must be atleast 2 sides for the dice." << endl;
+					flag == true;
+				}
+
+				if (flag == true) {
+					continue;
+				}
+				break;
+			}
+			
+			cout << "Number of players: " << numPlayers << endl;
+			cout << "Number of dice: " << numDice << endl;
+			cout << "Number of sides per dice: " << numDiceSides << endl;
+
+			for (int i = 0; i < numPlayers; i++) {
 				string name;
 				int score;
 				
@@ -79,13 +114,13 @@ class DiceGame{
 				
 				// Create space in memory for a new Player instance.
 				// Uses the Player constructor to write to both private variables.
-				Player* new_player = new Player(name, score);
-				players[i] = new_player;
+				players.push_back(new Player(name, score));
+				
 			}
 		}
 
 		void displayScores() {
-			for (int i = 0; i < MAX_PLAYERS; i++) {
+			for (int i = 0; i < numPlayers; i++) {
 				// The '->' operator allows you to reference a method or variable
 				// within the structure (in this case, each player instance)
 				string name = players[i]->getName();
@@ -96,10 +131,36 @@ class DiceGame{
 		}
 };
 
+class KnockOutGame : public DiceGame {
+	public:
+		void play() override {
+			initPlayers();
+			dice = new Dice(numDiceSides);
+
+			// Calculate the Knock Out score (sum of N dice rolls)
+			int knockOutScore = 0;
+			for (int i = 0; i < numDice; ++i) {
+				knockOutScore += dice->roll();
+			}
+			
+			for (Player* player : players) {
+				// Testing all elements within players
+				cout << "Player: " << player->getName() << "    Name: " << player->getScore() << endl;
+			}
+
+			// Game loop
+		}
+};
+
+
 int main() {
 	// Initialize rand() & test
 	srand((unsigned)time(0));
 	cout<<rand()<<endl;
+
+	KnockOutGame game;
+
+	game.play();
 	
 	return 0;
 
