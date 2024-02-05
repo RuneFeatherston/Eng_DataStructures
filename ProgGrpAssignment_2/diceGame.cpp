@@ -244,9 +244,34 @@ int main() {
 	// Initialize rand()
 	srand((unsigned)time(0));
 
-	KnockOutGame game;
+	int gameChoice;
+	DiceGame* game = nullptr;
+	
+	cout << "1. Boston Dice Game." << endl;
+	cout << "2. Knockout Dice Game." << endl;
 
-	game.play();
+	do {
+		cout << "Select what game you want to play: ";
+		cin >> gameChoice;
+
+		switch (gameChoice) {
+			case 1:
+				game = new BostonDiceGame();
+				break;
+			case 2:
+				game = new KnockOutGame();
+				break;
+			default:
+				cout << "Invalid input. Please try again." << endl;
+				continue;
+		}
+		break;
+	} while (1);
+	
+	if (game != nullptr) {
+		game->play();
+		delete game;
+	}
 	
 	return 0;
 
