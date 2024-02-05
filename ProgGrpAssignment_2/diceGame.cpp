@@ -4,6 +4,7 @@
 #include <ctime> 
 #include <fstream>
 #include <stdlib.h>
+#include <limits>
 
 using namespace std;
 
@@ -107,13 +108,28 @@ class DiceGame{
 
 			for (int i = 0; i < numPlayers; i++) {
 				string name;
+				string scoreStr;
 				int score;
 				
 				// Prompt the user for info on each instance of the player class.
 				cout << "Enter the name of player " << i+1 << ":";
 				cin >> name;
+				cin.ignore(numeric_limits<streamsize>::max(), '\n');
+				
+				// There was some weird behavior with the input handling involving
+				// the stream detecting a new line. This fix worked, but I'm not 
+				// completely sure what was going on...
 				cout << "Enter the score of player " << i+1 << ":";
-				cin >> score;
+				getline(cin, scoreStr);
+				try {
+					score = stoi(scoreStr);
+					break;
+				} catch (invalid_argument& ia) {
+					cerr << "ERROR: Invalid input. Must be numerical.\n";
+				}
+
+				cin.clear();
+				cin.ignore(numeric_limits<streamsize>::max(), '\n');
 				
 				// Create space in memory for a new Player instance.
 				// Uses the Player constructor to write to both private variables.
@@ -145,10 +161,10 @@ class KnockOutGame : public DiceGame {
 			for (int i = 0; i < numDice; ++i) {
 				knockOutScore += dice->roll();
 			}
-			
+			// Test to ensure that all players and scores are assigned properly.
 			for (Player* player : players) {
-				// Testing all elements within players
-				cout << "Player: " << player->getName() << "    Name: " << player->getScore() << endl;
+				cout << "Player: " << player->getName() << "    Score: " << player->getScore() << endl;
+				cout << endl << knockOutScore;
 			}
 
 			// Game loop
@@ -157,9 +173,8 @@ class KnockOutGame : public DiceGame {
 
 
 int main() {
-	// Initialize rand() & test
+	// Initialize rand()
 	srand((unsigned)time(0));
-	cout<<rand()<<endl;
 
 	KnockOutGame game;
 
