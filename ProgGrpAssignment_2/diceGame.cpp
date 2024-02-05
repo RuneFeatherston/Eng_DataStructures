@@ -140,6 +140,52 @@ class DiceGame{
 				cout << name << ":" << score << endl;
 			}
 		}
+
+		void writeScoresToFile() const {
+			ofstream scoresheet("scores.txt", ios::app);
+			if (scoresheet.is_open()) {
+				for (const auto& player : players) {
+					scoresheet << player->getName() << ":" << player->getScore() << endl;
+				}
+				scoresheet.close();
+			} else {
+				cout << "Unable to open file" << endl; 
+			}
+		}
+
+		void getHighestScore() {
+			ifstream scoresheet("scores.txt");
+			string line;
+			string highestScoringPlayer;
+			int highestScore = -1; // start off w/ impossible score
+
+			if (scoresheet.is_open()) {
+				while (getline(scoresheet, line)) {
+					// from beginnning of line to colon, ":"
+					// then, from colon ":" + 1 to end of line.
+					string playerName = line.substr(0, line.find(":"));
+					string playerScoreStr = line.substr(line.find(":") + 1);
+					int playerScore = std::atoi(playerScoreStr.c_str()); // convert str to int.
+					
+					// assign to highest player found
+					if (playerScore > highestScore) {
+						highestScore = playerScore;
+						highestScoringPlayer = playerName;
+					}
+				}
+				scoresheet.close();
+
+				// Error detection + score display
+				if (highestScore != -1) { 
+					cout << "Highest score: " << highestScoringPlayer << " with " << highestScore << endl;
+				} else {
+					cout << "No scores found." << endl;
+				}
+			} else {
+				cout << "Unable to open file." << endl;
+			}
+		}
+
 };
 
 class KnockOutGame : public DiceGame {
@@ -194,6 +240,7 @@ class KnockOutGame : public DiceGame {
 				}
 			}
 
+			writeScoresToFile();
 			delete dice;
 			
 		}
@@ -240,6 +287,7 @@ class BostonDiceGame : public DiceGame {
 				cout << "Winner: " << winner->getName() << " with score: " << highestScore << endl;
 			}
 
+			writeScoresToFile();
 			delete dice;
 		}
 };
@@ -276,6 +324,8 @@ int main() {
 	
 	if (game != nullptr) {
 		game->play();
+		cout << endl << "- - HIGHEST SCORE - -" << endl << endl;
+		game->getHighestScore();
 		delete game;
 	}
 	
