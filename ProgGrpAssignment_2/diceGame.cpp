@@ -121,15 +121,7 @@ class DiceGame{
 				// completely sure what was going on...
 				cout << "Enter the score of player " << i+1 << ":";
 				getline(cin, scoreStr);
-				try {
-					score = stoi(scoreStr);
-					break;
-				} catch (invalid_argument& ia) {
-					cerr << "ERROR: Invalid input. Must be numerical.\n";
-				}
-
-				cin.clear();
-				cin.ignore(numeric_limits<streamsize>::max(), '\n');
+				score = stoi(scoreStr);
 				
 				// Create space in memory for a new Player instance.
 				// Uses the Player constructor to write to both private variables.
@@ -144,7 +136,7 @@ class DiceGame{
 				// within the structure (in this case, each player instance)
 				string name = players[i]->getName();
 				int score = players[i]->getScore();
-				
+
 				cout << name << ":" << score << endl;
 			}
 		}
@@ -161,13 +153,47 @@ class KnockOutGame : public DiceGame {
 			for (int i = 0; i < numDice; ++i) {
 				knockOutScore += dice->roll();
 			}
+
 			// Test to ensure that all players and scores are assigned properly.
+			/*
 			for (Player* player : players) {
 				cout << "Player: " << player->getName() << "    Score: " << player->getScore() << endl;
 				cout << endl << knockOutScore;
 			}
+			*/
 
 			// Game loop
+			bool gameInProgress = true;
+
+			while (gameInProgress = true) {
+				vector<Player*>::iterator currentPlayer = players.begin();
+				while (currentPlayer != players.end()) {
+					int playerScore = 0;
+
+					// Roll all of the dice and add them to obj currentPlayer
+					for (int i = 0; i < numDice; ++i) {
+						playerScore += dice->roll();
+					}
+
+					cout << (*currentPlayer)->getName() << " rolls: " << playerScore << endl;
+
+					if (playerScore == knockOutScore) {
+						cout << (*currentPlayer)->getName() << " gets knocked out!" << endl;
+						currentPlayer = players.erase(currentPlayer); // Remove the current player
+					} else {
+						++currentPlayer;
+					}
+
+					if (players.size() == 1) {
+						gameInProgress = false;
+						cout << "Winner: " << players[0]->getName() << endl << endl;
+						(*currentPlayer)->addToScore(1);
+						break;
+					}
+
+				}
+			}
+			
 		}
 };
 
