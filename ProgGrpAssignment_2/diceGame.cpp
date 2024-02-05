@@ -211,7 +211,8 @@ class BostonDiceGame : public DiceGame {
 			for (Player* player : players) {
 				int score = 0;
 				int diceToRoll = numDice;
-
+				
+				// Loop through all dice rolls, getting the highest one out of each bunch.
 				while (diceToRoll > 0) {
 					int highestRoll = 0;
 					for (int i = 0; i < diceToRoll; ++i) {
@@ -223,12 +224,17 @@ class BostonDiceGame : public DiceGame {
 					--diceToRoll;
 				}
 
-				displayScores();
+				// Update the player's score
+				player->addToScore(score);
 
 				if (score > highestScore) {
 					highestScore = score;
+					winner = player; // Update the winner's pointer
 				}
 			}
+
+			// Display updated scores, and the winner after all rounds are complete.
+			displayScores();
 
 			if (winner != nullptr) {
 				cout << "Winner: " << winner->getName() << " with score: " << highestScore << endl;
