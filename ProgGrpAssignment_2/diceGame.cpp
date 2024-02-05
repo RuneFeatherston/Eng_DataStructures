@@ -90,7 +90,7 @@ class DiceGame{
 				cin >> numDiceSides;
 				if (numDiceSides < 2) {
 					cout << "Invalid value. There must be atleast 2 sides for the dice." << endl;
-					flag == true;
+					flag = true;
 				}
 
 				cout << endl;
@@ -165,7 +165,7 @@ class KnockOutGame : public DiceGame {
 			// Game loop
 			bool gameInProgress = true;
 
-			while (gameInProgress = true) {
+			while (gameInProgress == true) {
 				vector<Player*>::iterator currentPlayer = players.begin();
 				while (currentPlayer != players.end()) {
 					int playerScore = 0;
@@ -193,9 +193,51 @@ class KnockOutGame : public DiceGame {
 
 				}
 			}
+
+			delete dice;
 			
 		}
 };
+
+class BostonDiceGame : public DiceGame {
+	public:
+		void play() override {
+			initPlayers();
+			dice = new Dice(numDiceSides); // Task description said to assume 6-sided dice.
+
+			int highestScore = 0;
+			Player * winner = nullptr;
+
+			for (Player* player : players) {
+				int score = 0;
+				int diceToRoll = numDice;
+
+				while (diceToRoll > 0) {
+					int highestRoll = 0;
+					for (int i = 0; i < diceToRoll; ++i) {
+						int roll = dice->roll();
+						highestRoll = max(highestRoll, roll);
+					}
+					score += highestRoll;
+					cout << player->getName() << " rolls, preserving: " << highestRoll << endl;
+					--diceToRoll;
+				}
+
+				displayScores();
+
+				if (score > highestScore) {
+					highestScore = score;
+				}
+			}
+
+			if (winner != nullptr) {
+				cout << "Winner: " << winner->getName() << " with score: " << highestScore << endl;
+			}
+
+			delete dice;
+		}
+};
+			
 
 
 int main() {
