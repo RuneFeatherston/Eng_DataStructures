@@ -1,0 +1,3 @@
+The compiled binary is included with the assignment. However, if you need to compile it, our group used g++ (gcc.gnu.org). To compile, run g++ <filename>. Then, run the binary, titled 'a.out'
+
+Members: Rune Featherston, Henry Nguyen
