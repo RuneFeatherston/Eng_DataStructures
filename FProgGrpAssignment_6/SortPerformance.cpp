@@ -445,6 +445,7 @@ double runSort(T arr[], int size, void (*sortFunc)(T[], int)) {
 
     return total_time / num_runs;
 }
+
 template<typename T>
 void generateTable(void (*sortFuncArr[])(T[], int), const std::string sortFuncNames[], int numSortFuncs, int testArrRange[], int sizeTestArrRange) {
     // There was some weirdness with 'ambiguity' in the compilier due to the string sortFuncNames,
@@ -488,6 +489,29 @@ void generateTable(void (*sortFuncArr[])(T[], int), const std::string sortFuncNa
     }
 }
 
+// Function to generate random string of given length
+string generateRandomString(int length) {
+    static const string chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    string randomString;
+    randomString.reserve(length);
+    srand(time(0)); // Seed the random number generator
+    for (int i = 0; i < length; ++i) {
+        randomString += chars[rand() % chars.size()];
+    }
+    return randomString;
+}
+
+// Function to generate random student
+Student generateRandomStudent() {
+    string firstName = generateRandomString(6);
+    string lastName = generateRandomString(8);
+    string mNumber = "M" + generateRandomString(7);
+    int age = 18 + rand() % 10; // Random age between 18 and 27
+    float gpa = 2.0 + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / (4.0))); // Random GPA between 2.0 and 4.0
+    return Student(firstName, lastName, mNumber, age, gpa);
+}
+
+
 int main() {
     int testArrRange[] = {10, 100, 500, 5000, 25000};
     int sizeTestArrRange = 5;
@@ -512,8 +536,17 @@ int main() {
         countingSort<int>, 
         radixSort<int>
     };
+    // generateTable(sortFuncArr, sortFuncNames, numSortFuncs, testArrRange, sizeTestArrRange);
 
-    generateTable(sortFuncArr, sortFuncNames, numSortFuncs, testArrRange, sizeTestArrRange);
+    vector<Student> students;
+    for (int i = 0; i < 50; ++i) {
+        students.push_back(generateRandomStudent());
+    }
+
+    // Printing student information
+    for (const auto& student : students) {
+        student.DisplayInfo();
+    }
 
     return 0;
 }
