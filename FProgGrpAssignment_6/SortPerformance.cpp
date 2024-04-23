@@ -136,6 +136,57 @@ public:
     }
 };
 
+class Student {
+private:
+    string FirstName;
+    string LastName;
+    string MNumber;
+    float GPA;
+    int Age; // Updated member variable to hold age in years
+
+public:
+    // Constructor
+    Student(string firstName, string lastName, string mNumber, int age, float gpa = 0.0)
+        : FirstName(firstName), LastName(lastName), MNumber(mNumber), Age(age), GPA(gpa) {}
+
+    // GetName method
+    string GetName() const {
+        return FirstName + " " + LastName;
+    }
+
+    // GetMNumber method
+    string GetMNumber() const {
+        return MNumber;
+    }
+
+    // GetAge method
+    int GetAge() const {
+        return Age;
+    }
+
+	// Display student info in a basic ASCII table with consistent spacing
+    void DisplayInfo() const {
+        cout << "+------------+------------+--------------+" << endl;
+        cout << "| First Name | Last Name  | MNumber      |" << endl;
+        cout << "+------------+------------+--------------+" << endl;
+        cout << "| " << setw(10) << left << FirstName << " | " << setw(10) << left << LastName << " | " << setw(10) << left << MNumber << " |" << endl;
+        cout << "+------------+------------+--------------+" << endl;
+    }
+
+    // Overloaded comparison operators
+    bool operator>(const Student& other) const {
+        return MNumber > other.MNumber;
+    }
+
+    bool operator<(const Student& other) const {
+        return MNumber < other.MNumber;
+    }
+
+    bool operator==(const Student& other) const {
+        return MNumber == other.MNumber;
+    }
+};
+
 int* generateArray(int size) {
     srand(time(0));
     int *arrPtr = new int[size];
