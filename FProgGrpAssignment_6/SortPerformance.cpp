@@ -33,39 +33,71 @@ public:
 };
 
 template<typename T>
-class OrderedLinkedList {
+class LinkedList {
 private:
     Node<T>* head;
 
 public:
-    OrderedLinkedList() : head(nullptr) {}
+    LinkedList() : head(nullptr) {}
 
-    ~OrderedLinkedList() {
+    ~LinkedList() {
         clear();
     }
 
-    void AddItem(const T* value) {
-    	Node<T>* newNode = new Node<T>(*value);
+    void AddItem(const T& value) {
+        Node<T>* newNode = new Node<T>(value);
 
-    	// list is empty, OR new node should be placed before head
-    	if (!head || *head > *newNode) {
-    	    newNode->next = head;
-    	    head = newNode;
-   	 	} else {
-        	// find correct position for new node
-        	Node<T>* current = head;
+        // list is empty, OR new node should be placed before head
+        if (!head || *head > *newNode) {
+            newNode->next = head;
+            head = newNode;
+        } else {
+            // find correct position for new node
+            Node<T>* current = head;
 
-        // traverse until we find value less than new node, OR end of list
-        while (current->next && *current->next < *newNode) {
-            current = current->next; // next node
-        }
+            // traverse until we find value less than new node, OR end of list
+            while (current->next && *current->next < *newNode) {
+                current = current->next; // next node
+            }
 
-        // inserting new node...
-        newNode->next = current->next;
-        current->next = newNode;
+            // inserting new node...
+            newNode->next = current->next;
+            current->next = newNode;
         }
     }
 
+    void InsertAtPosition(int position, const T& value) {
+        if (position < 0) {
+            // Invalid position, do nothing
+            return;
+        }
+
+        Node<T>* newNode = new Node<T>(value);
+
+        if (position == 0) {
+            // Insert at the beginning of the list
+            newNode->next = head;
+            head = newNode;
+            return;
+        }
+
+        // Traverse the list to find the node at the previous position
+        Node<T>* current = head;
+        int currentPosition = 0;
+        while (current != nullptr && currentPosition < position - 1) {
+            current = current->next;
+            currentPosition++;
+        }
+
+        if (current == nullptr) {
+            // Position is out of bounds, insert at the end of the list
+            current = GetTail();
+        }
+
+        // Insert the new node after the current node
+        newNode->next = current->next;
+        current->next = newNode;
+    }
 
     // NOTE: This specifies only pointers to be passed to and from the class.
     // Therefore, it is the caller's responsibility to delete the node after use in
@@ -126,6 +158,23 @@ public:
         return count;
     }
 
+    Node<T>* GetHead() const {
+        return head;
+    }
+
+    Node<T>* GetTail() {
+        if (head == nullptr) {
+            return nullptr;
+        }
+
+        Node<T>* current = head;
+        while (current->next != nullptr) {
+            current = current->next;
+        }
+        return current;
+    }
+
+
     // Clears the linked list and deallocates memory
     void clear() {
         while (head != nullptr) {
@@ -166,11 +215,11 @@ public:
 
 	// Display student info in a basic ASCII table with consistent spacing
     void DisplayInfo() const {
-        cout << "+------------+------------+--------------+" << endl;
-        cout << "| First Name | Last Name  | MNumber      |" << endl;
-        cout << "+------------+------------+--------------+" << endl;
-        cout << "| " << setw(10) << left << FirstName << " | " << setw(10) << left << LastName << " | " << setw(10) << left << MNumber << " |" << endl;
-        cout << "+------------+------------+--------------+" << endl;
+        std::cout << "+------------+------------+--------------+" << endl;
+        std::cout << "| First Name | Last Name  | MNumber      |" << endl;
+        std::cout << "+------------+------------+--------------+" << endl;
+        std::cout << "| " << setw(10) << left << FirstName << " | " << setw(10) << left << LastName << " | " << setw(10) << left << MNumber << " |" << endl;
+        std::cout << "+------------+------------+--------------+" << endl;
     }
 
     // Overloaded comparison operators
@@ -425,6 +474,68 @@ void radixSort(T arr[], int size) {
     }
 }
 
+// Linked list specific sorting functions
+template<typename T>
+void bubbleSortLL(LinkedList<T>& list) {
+    bool swapped;
+    Node<T>* ptr1;
+    Node<T>* lptr = nullptr;
+
+    // If list is empty or has only one node, it's already sorted
+    if (list.IsEmpty() || list.Size() == 1) {
+        return;
+    }
+
+    do {
+        swapped = false;
+        ptr1 = list.GetHead();
+
+        while (ptr1->next != lptr) {
+            if (ptr1->data > ptr1->next->data) { // Compare directly using the overloaded operator
+                swap(ptr1->data, ptr1->next->data);
+                swapped = true;
+            }
+            ptr1 = ptr1->next;
+        }
+        lptr = ptr1;
+    } while (swapped);
+}
+
+// Linked list specific sorting functions
+template<typename T>
+void insertionSortLL(LinkedList<T>& list) {
+    if (list.IsEmpty() || list.Size() == 1) {
+        // Already sorted or no elements to sort
+        return;
+    }
+
+    LinkedList<T> sortedList; // Create a new empty list for sorted elements
+
+    // Traverse the original list
+    Node<T>* current = list.GetHead();
+    while (current != nullptr) {
+        Node<T>* nextNode = current->next; // Save the next node before modifying the current list
+
+        // Find the correct position to insert the current node in the sorted list
+        Node<T>* sortedCurrent = sortedList.GetHead();
+        int insertionPosition = 0;
+        while (sortedCurrent != nullptr && sortedCurrent->data < current->data) {
+            sortedCurrent = sortedCurrent->next;
+            insertionPosition++;
+        }
+
+        // Insert the current node into the sorted list at the correct position
+        sortedList.InsertAtPosition(insertionPosition, current->data);
+
+        // Move to the next node in the original list
+        current = nextNode;
+    }
+
+    // Update the original list with the sorted list
+    list = sortedList;
+}
+
+
 // Function to run sorting algorithm and return average time taken
 // Utilize a function pointer for ease of use
 template<typename T>
@@ -501,16 +612,20 @@ string generateRandomString(int length) {
     return randomString;
 }
 
-// Function to generate random student
+// Function to generate a random student
 Student generateRandomStudent() {
-    string firstName = generateRandomString(6);
-    string lastName = generateRandomString(8);
-    string mNumber = "M" + generateRandomString(7);
-    int age = 18 + rand() % 10; // Random age between 18 and 27
-    float gpa = 2.0 + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / (4.0))); // Random GPA between 2.0 and 4.0
+    static const string firstNames[] = {"Alice", "Bob", "Charlie", "David", "Eve"};
+    static const string lastNames[] = {"Smith", "Johnson", "Williams", "Jones", "Brown"};
+    static const string mNumbers[] = {"M123456", "M234567", "M345678", "M456789", "M567890", "M777777"};
+
+    string firstName = firstNames[rand() % 5];
+    string lastName = lastNames[rand() % 5];
+    string mNumber = mNumbers[rand() % 5];
+    int age = rand() % 10 + 18; // Random age between 18 and 27
+    float gpa = (rand() % 400) / 100.0; // Random GPA between 0.0 and 4.0
+
     return Student(firstName, lastName, mNumber, age, gpa);
 }
-
 
 int main() {
     int testArrRange[] = {10, 100, 500, 5000, 25000};
@@ -536,17 +651,59 @@ int main() {
         countingSort<int>, 
         radixSort<int>
     };
-    // generateTable(sortFuncArr, sortFuncNames, numSortFuncs, testArrRange, sizeTestArrRange);
 
-    vector<Student> students;
-    for (int i = 0; i < 50; ++i) {
-        students.push_back(generateRandomStudent());
-    }
+    // Seed the random number generator
+    srand(time(0));
 
-    // Printing student information
-    for (const auto& student : students) {
-        student.DisplayInfo();
+    // Prompt the user to choose an option
+    cout << "Choose an option:" << endl;
+    cout << "1. Generate a table" << endl;
+    cout << "2. Create a linked list with 50 random students and sort" << endl;
+    int option;
+    cin >> option;
+
+    if (option == 1) {
+        cout << "Generating table..." << endl;
+        generateTable(sortFuncArr, sortFuncNames, numSortFuncs, testArrRange, sizeTestArrRange);
+    } else if (option == 2) {
+        // Create a linked list with 50 random students
+        LinkedList<Student> studentsList;
+        for (int i = 0; i < 50; ++i) {
+            studentsList.AddItem(generateRandomStudent());
+        }
+
+        // Prompt the user to choose a sorting algorithm
+        cout << "Choose a sorting algorithm:" << endl;
+        cout << "1. Bubble Sort" << endl;
+        cout << "2. Insertion Sort" << endl;
+        cout << "Note: We were unable to finish the Linked List sort implementation, due to some technical difficulties. You might notice some seg faults." << endl;
+        int sortOption;
+        cin >> sortOption;
+
+        // Sort the linked list based on user's choice
+        if (sortOption == 1) {
+            bubbleSortLL(studentsList);
+            cout << "Sorted using Bubble Sort." << endl;
+        } else if (sortOption == 2) {
+            insertionSortLL(studentsList);
+            cout << "Sorted using Insertion Sort." << endl;
+        } else {
+            cout << "Invalid sorting option." << endl;
+            return 1;
+        }
+
+        // Display the sorted students
+        cout << "Sorted Students:" << endl;
+        Node<Student>* current = studentsList.GetHead();
+        while (current != nullptr) {
+            current->data.DisplayInfo();
+            current = current->next;
+        }
+    } else {
+        cout << "Invalid option." << endl;
+        return 1;
     }
 
     return 0;
 }
+
